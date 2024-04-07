@@ -75,6 +75,8 @@ my_issues_tbl |>
   ) +
   theme(axis.text.x = element_text(angle = 90, hjust = 0, vjust = 0.5))
 
+ggsave("issues_per_year.png", width = 10, height = 6)
+
 issues_vs_first_member_comment |>
   filter(!issue_author_is_member) |>
   mutate(new = clock::get_year(issue_created_at) >= 2022) |>
@@ -93,9 +95,12 @@ issues_vs_first_member_comment |>
   scale_y_continuous() +
   labs(
     x = "Time to first response (days)",
-    y = "Number of issues"
+    y = "Number of issues",
+    title = "Time to first response for issues and pull requests",
   ) +
   facet_grid(vars(new), vars(issue_is_pr), scales = "free_y")
+
+ggsave("time_to_first_response.png", width = 10, height = 6)
 
 issues_vs_first_member_comment |>
   filter(!issue_author_is_member) |>
@@ -118,7 +123,9 @@ issues_vs_first_member_comment |>
   labs(
     x = "Time to close (days)",
     y = "Number of issues",
-    fill = "Issue author"
+    fill = "Issue author",
+    title = "Time to close for issues and pull requests",
   ) +
   facet_grid(vars(new), vars(issue_is_pr), scales = "free_y")
 
+ggsave("time_to_close.png", width = 10, height = 6)
