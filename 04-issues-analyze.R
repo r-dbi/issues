@@ -52,8 +52,13 @@ issues_vs_first_member_comment |>
   identity()
 
 # Slow issues
+bizdays::load_rmetrics_calendars(year = 2013:2024)
+
+try <- issues_vs_first_member_comment |>
+  mutate(time = bizdays::bizdays(from = issue_created_at, to = created_at, cal = "Rmetrics/ZURICH"))
+
 issues_vs_first_member_comment |>
-  mutate(time = as.numeric(created_at - issue_created_at) / 86400) |>
+  mutate(time = bizdays::bizdays(from = issue_created_at, to = created_at, cal = "Rmetrics/ZURICH")) |>
   filter(clock::get_year(issue_created_at) >= 2022) |>
   filter(!issue_is_pr) |>
   filter(time >= 14) |>
@@ -80,7 +85,7 @@ ggsave("issues_per_year.png", width = 10, height = 6)
 issues_vs_first_member_comment |>
   filter(!issue_author_is_member) |>
   mutate(new = clock::get_year(issue_created_at) >= 2022) |>
-  mutate(time = as.numeric(created_at - issue_created_at) / 86400) |>
+  mutate(time = bizdays::bizdays(from = issue_created_at, to = created_at, cal = "Rmetrics/ZURICH")) |>
   filter(!is.na(time)) |>
   mutate(time_bin = santoku::chop(
     trunc(time),
@@ -94,7 +99,7 @@ issues_vs_first_member_comment |>
   geom_col() +
   scale_y_continuous() +
   labs(
-    x = "Time to first response (days)",
+    x = "Time to first response (business days)",
     y = "Number of issues",
     title = "Time to first response for issues and pull requests",
   ) +
@@ -105,7 +110,7 @@ ggsave("time_to_first_response.png", width = 10, height = 6)
 issues_vs_first_member_comment |>
   filter(!issue_author_is_member) |>
   mutate(new = clock::get_year(issue_created_at) >= 2022) |>
-  mutate(time = as.numeric(issue_closed_at - issue_created_at) / 86400) |>
+  mutate(time = bizdays::bizdays(from = issue_created_at, to = issue_closed_at, cal = "Rmetrics/ZURICH")) |>
   mutate(human = (issue_user_login != "github-actions[bot]")) |>
   filter(!is.na(time)) |>
   mutate(time_bin = santoku::chop(
@@ -121,7 +126,7 @@ issues_vs_first_member_comment |>
   geom_col() +
   scale_y_continuous() +
   labs(
-    x = "Time to close (days)",
+    x = "Time to close (business days)",
     y = "Number of issues",
     fill = "Issue author",
     title = "Time to close for issues and pull requests",
