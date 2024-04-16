@@ -8,7 +8,7 @@ issues_tbl |>
 
 my_issues_tbl <-
   issues_tbl |>
-  transmute(
+  mutate(
     repo,
     issue_url,
     number,
@@ -20,6 +20,7 @@ my_issues_tbl <-
     issue_author_is_member = (issue_author_association == "MEMBER"),
     issue_is_pr = !is.na(pull_request$url),
     issue_html_url,
+    .keep = "none"
   )
 
 issues_comments_tbl |>
@@ -27,12 +28,13 @@ issues_comments_tbl |>
 
 my_issues_comments_tbl <-
   issues_comments_tbl |>
-  transmute(
+  mutate(
     id,
     issue_url,
     user_login = user$login,
     author_is_member = (author_association == "MEMBER"),
-    created_at
+    created_at,
+    .keep = "none"
   )
 
 issues_vs_first_member_comment <-
