@@ -22,6 +22,18 @@ my_issues_tbl <-
     issue_html_url,
   )
 
+my_issues_tbl |>
+  nrow() |>
+  as.character() |>
+  writeLines("all-issues.txt")
+
+my_issues_tbl |>
+  select(issue_created_at) |>
+  filter(lubridate::year(issue_created_at) >= 2022) |>
+  nrow() |>
+  as.character() |>
+  writeLines("new-issues.txt")
+
 issues_comments_tbl |>
   count(author_association)
 
@@ -75,7 +87,7 @@ my_issues_tbl |>
   ) +
   theme(axis.text.x = element_text(angle = 90, hjust = 0, vjust = 0.5))
 
-ggsave("issues_per_year.png", width = 10, height = 6)
+ggsave("issues_per_year.png", width = 10, height = 6, dpi = "retina", scale = 0.8)
 
 issues_vs_first_member_comment |>
   filter(!issue_author_is_member) |>
@@ -100,7 +112,7 @@ issues_vs_first_member_comment |>
   ) +
   facet_grid(vars(new), vars(issue_is_pr), scales = "free_y")
 
-ggsave("time_to_first_response.png", width = 10, height = 6)
+ggsave("time_to_first_response.png", width = 10, height = 6, dpi = "retina", scale = 0.8)
 
 issues_vs_first_member_comment |>
   filter(!issue_author_is_member) |>
@@ -128,4 +140,12 @@ issues_vs_first_member_comment |>
   ) +
   facet_grid(vars(new), vars(issue_is_pr), scales = "free_y")
 
-ggsave("time_to_close.png", width = 10, height = 6)
+ggsave("time_to_close.png", width = 10, height = 6, dpi = "retina", scale = 0.8)
+
+issues_vs_first_non_member_comment <-
+  my_issues_comments_tbl |>
+  full_join(my_issues_tbl, join_by(issue_url)) |>
+  filter(issue_user_login != user_login) |>
+  filter(row_number() == 1, .by = issue_url) |>
+  mutate(new = clock::get_year(issue_created_at) >= 2022) |>
+  count(new, author_is_member)
