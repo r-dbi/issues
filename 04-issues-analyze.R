@@ -49,6 +49,7 @@ my_issues_comments_tbl <-
 
 issues_vs_first_member_comment <-
   my_issues_comments_tbl |>
+  arrange(issue_url, created_at) |>
   filter(author_is_member) |>
   filter(row_number() == 1, .by = issue_url) |>
   full_join(my_issues_tbl, join_by(issue_url))
